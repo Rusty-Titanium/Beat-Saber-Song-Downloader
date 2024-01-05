@@ -11,160 +11,137 @@
         FontSize="18" Closing="Window_Closing" Loaded="Window_Loaded" Style="{DynamicResource CustomWindowStyle}">
 
     <Window.Resources>
-
         <Color x:Key="Color.Background"                      R="120" G="120" B="120" A="255"/>
         <SolidColorBrush x:Key="ScrollView.Background"         Color="{StaticResource Color.Background}"/>
-
-        <!--
-        
-        <Color x:Key="Color.Background"                      R="235" G="235" B="235" A="255"/>
-        <SolidColorBrush x:Key="Resource.Background"         Color="{StaticResource Color.Background}"/>
-        <Color x:Key="Color.Secondary.Button.Background"                      R="210" G="210" B="210" A="255"/>
-        <SolidColorBrush x:Key="Resource.Secondary.Button.Background"         Color="{StaticResource Color.Secondary.Button.Background}"/>
-        
-        -->
-
-
-        
-        
-        <!-- Honestly not sure why these are here. From my understanding they don't do anything? maybe these are needed when changing after being clicked but idk 
-        <Path x:Key="Play" Data="m 0,0 -2,1 0,-2 z" Fill="Black" Stretch="Uniform"/>
-        <Rectangle x:Key="Pause" Fill="Black" Width="25" Height="25"/>
-        -->
-        
     </Window.Resources>
 
 
     <Grid>
 
-        
-
-
-        <!-- I might be able to just remove this border and use the grid instead, but not sure. -->
-        <Border Width="500" HorizontalAlignment="Left">
-
-            <!-- This is the left half of the UI -->
-            <Grid>
-
-                <Label Content="Beat Saber Song Search and Downloader" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="24" />
 
 
 
-                <StackPanel HorizontalAlignment="Center" Margin="0 60 0 0">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 0 0 30">
-                        <Label Content="From"/>
-                        <DatePicker x:Name="fromPicker" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Label Content="To"/>
-                        <DatePicker x:Name="toPicker" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    </StackPanel>
+        <!-- This is the left half of the UI -->
+        <Grid Width="500" HorizontalAlignment="Left">
+
+            <Label Content="Beat Saber Song Search and Downloader" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="24" />
+
+
+
+            <StackPanel HorizontalAlignment="Center" Margin="0 60 0 0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 0 0 30">
+                    <Label Content="From"/>
+                    <DatePicker x:Name="fromPicker" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
-
-                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 190 0 0">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Label Content="Chroma" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="chromaBox" Width="70" SelectedIndex="0">
-                            <ComboBoxItem Content="--"/>
-                            <ComboBoxItem Content="true"/>
-                            <ComboBoxItem Content="false"/>
-                        </ComboBox>
-                        <Path Fill="Coral" Stretch="Uniform" Width="30" Height="30" Margin="6 0 -36 0" Data="M204,108a52.22039,52.22039,0,0,0-47.22852,30.23047c-.25634-.00488-.51416-.00781-.77148-.00781-19.85059,0-36,16.54785-36,36.88867S136.14941,212,156,212h48a52,52,0,0,0,0-104Zm0,80H156c-6.6167,0-12-5.78223-12-12.88867s5.3833-12.88867,12-12.88867a11.17418,11.17418,0,0,1,4.25928.834,11.99978,11.99978,0,0,0,16.30761-8.70215A28.00366,28.00366,0,1,1,204,188Zm-94.78467-51.16406a11.9996,11.9996,0,0,1-2.11328,16.83789A7.96265,7.96265,0,0,0,104,160v16a12,12,0,0,1-24,0V160a31.80572,31.80572,0,0,1,12.37646-25.27734A11.99951,11.99951,0,0,1,109.21533,136.83594Zm27.44141-18.0293A48.01347,48.01347,0,0,0,64,160v16a12,12,0,0,1-24,0V160A72.01331,72.01331,0,0,1,149.00732,98.22852a12,12,0,1,1-12.35058,20.57812ZM24,160v16a12,12,0,0,1-24,0V160A112.00217,112.00217,0,0,1,185.46826,75.46094a12.00012,12.00012,0,1,1-15.75,18.10937A88.0019,88.0019,0,0,0,24,160Z"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 6">
-                        <Label Content="Noodle Extensions" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="noodleBox" Width="70" SelectedIndex="0">
-                            <ComboBoxItem Content="--"/>
-                            <ComboBoxItem Content="true"/>
-                            <ComboBoxItem Content="false"/>
-                        </ComboBox>
-                        <Path Fill="Tan" Stretch="Uniform" Stroke="Tan" StrokeThickness="1" Margin="2 0 -34 0" Width="30" Height="10" Data="M478.679 226.691c-31.649 0-60.946 19.093-80.381 52.383l-.004.006c-8.907 15.252-20.189 23.999-30.954 23.999c-10.769 0-22.052-8.75-30.958-24.006l-.014-.023c-19.435-33.276-48.726-52.36-80.368-52.36c-31.649 0-60.947 19.093-80.381 52.382c-8.907 15.257-20.19 24.007-30.958 24.007c-10.768 0-22.052-8.75-30.958-24.007c-19.435-33.289-48.732-52.382-80.381-52.382c-15.803 0-28.614 12.811-28.614 28.614s12.811 28.614 28.614 28.614c10.768 0 22.052 8.75 30.958 24.007c19.435 33.289 48.732 52.382 80.381 52.382c31.648 0 60.946-19.093 80.381-52.382c8.907-15.257 20.19-24.007 30.958-24.007c10.766 0 22.048 8.747 30.954 23.999l.004.006c19.435 33.29 48.732 52.383 80.382 52.383c31.644 0 60.939-19.088 80.373-52.369l.008-.013c8.906-15.256 20.189-24.006 30.957-24.006c15.803 0 28.614-12.812 28.614-28.614c.001-15.802-12.811-28.613-28.613-28.613z">
-                            <Path.LayoutTransform>
-                                <RotateTransform Angle="135"/>
-                            </Path.LayoutTransform>
-                        </Path>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Label Content="(Vetted) Curated" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="curatedBox" Width="70" SelectedIndex="0">
-                            <ComboBoxItem Content="--"/>
-                            <ComboBoxItem Content="true"/>
-                            <ComboBoxItem Content="false"/>
-                        </ComboBox>
-
-                        <Path Fill="MediumSeaGreen" Stretch="Uniform" Width="25" Height="30" Margin="6 0 -31 0" StrokeThickness="1.3" Stroke="MediumSeaGreen" Data="M16.03,18.616l5.294-4.853a1,1,0,0,1,1.352,1.474l-6,5.5a1,1,0,0,1-1.383-.03l-3-3a1,1,0,0,1,1.414-1.414ZM1,20a9.01,9.01,0,0,1,5.623-8.337A4.981,4.981,0,1,1,10,13a7.011,7.011,0,0,0-6.929,6H10a1,1,0,0,1,0,2H2A1,1,0,0,1,1,20ZM7,8a3,3,0,1,0,3-3A3,3,0,0,0,7,8Z"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 6">
-                        <Label Content="(Created by verified mapper) Verified" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="verifiedBox" Width="70" SelectedIndex="0">
-                            <ComboBoxItem Content="--"/>
-                            <ComboBoxItem Content="true"/>
-                            <ComboBoxItem Content="false"/>
-                        </ComboBox>
-                        <Path Fill="Purple" Stroke="Black" VerticalAlignment="Center" StrokeThickness="0" Margin="4 0 -30 0" Data="M21.007 8.27C22.194 9.125 23 10.45 23 12c0 1.55-.806 2.876-1.993 3.73.24 1.442-.134 2.958-1.227 4.05-1.095 1.095-2.61 1.459-4.046 1.225C14.883 22.196 13.546 23 12 23c-1.55 0-2.878-.807-3.731-1.996-1.438.235-2.954-.128-4.05-1.224-1.095-1.095-1.459-2.611-1.217-4.05C1.816 14.877 1 13.551 1 12s.816-2.878 2.002-3.73c-.242-1.439.122-2.955 1.218-4.05 1.093-1.094 2.61-1.467 4.057-1.227C9.125 1.804 10.453 1 12 1c1.545 0 2.88.803 3.732 1.993 1.442-.24 2.956.135 4.048 1.227 1.093 1.092 1.468 2.608 1.227 4.05Zm-4.426-.084a1 1 0 0 1 .233 1.395l-5 7a1 1 0 0 1-1.521.126l-3-3a1 1 0 0 1 1.414-1.414l2.165 2.165 4.314-6.04a1 1 0 0 1 1.395-.232Z"/>
-                    </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Label Content="To"/>
+                    <DatePicker x:Name="toPicker" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
+            </StackPanel>
 
-                <StackPanel VerticalAlignment="Bottom" Margin="0 0 0 76">
-                    <Grid>
-                        <Label Content="Tags" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 4" FontSize="30"/>
-                        <Button Content="Reset Tags" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="20 5" Margin="0 0 30 8" Click="Reset_Tags_Click"/>
-                    </Grid>
-
-
-
-                    <Border Background="{DynamicResource ScrollView.Background}" VerticalAlignment="Bottom" Margin="30 0 30 0" CornerRadius="12" Padding="0 1">
-                        <WrapPanel x:Name="tagPanel" Margin="4">
-                            <ToggleButton Content="alternative"             Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="ambient"                 Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="anime"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="classical-orchestral"    Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="comedy-meme"             Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="dance"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="drum-and-bass"           Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="electronic"              Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="funk-disco"              Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="hip-hop-rap"             Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="holiday"                 Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="house"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="indie"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="instrumental"            Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="j-pop"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="j-rock"                  Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="jazz"                    Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="k-pop"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="metal"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="pop"                     Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="punk"                    Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="rock"                    Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="swing"                   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="tv-movie-soundtrack"     Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="techno"                  Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="trance"                  Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="video-game-soundtrack"   Margin="3" Padding="5 2"/>
-                            <ToggleButton Content="vocaloid"                Margin="3" Padding="5 2"/>
-                        </WrapPanel>
-                    </Border>
-
-
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 190 0 0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Label Content="Chroma" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="chromaBox" Width="70" SelectedIndex="0">
+                        <ComboBoxItem Content="--"/>
+                        <ComboBoxItem Content="true"/>
+                        <ComboBoxItem Content="false"/>
+                    </ComboBox>
+                    <Path Fill="Coral" Stretch="Uniform" Width="30" Height="30" Margin="6 0 -36 0" Data="M204,108a52.22039,52.22039,0,0,0-47.22852,30.23047c-.25634-.00488-.51416-.00781-.77148-.00781-19.85059,0-36,16.54785-36,36.88867S136.14941,212,156,212h48a52,52,0,0,0,0-104Zm0,80H156c-6.6167,0-12-5.78223-12-12.88867s5.3833-12.88867,12-12.88867a11.17418,11.17418,0,0,1,4.25928.834,11.99978,11.99978,0,0,0,16.30761-8.70215A28.00366,28.00366,0,1,1,204,188Zm-94.78467-51.16406a11.9996,11.9996,0,0,1-2.11328,16.83789A7.96265,7.96265,0,0,0,104,160v16a12,12,0,0,1-24,0V160a31.80572,31.80572,0,0,1,12.37646-25.27734A11.99951,11.99951,0,0,1,109.21533,136.83594Zm27.44141-18.0293A48.01347,48.01347,0,0,0,64,160v16a12,12,0,0,1-24,0V160A72.01331,72.01331,0,0,1,149.00732,98.22852a12,12,0,1,1-12.35058,20.57812ZM24,160v16a12,12,0,0,1-24,0V160A112.00217,112.00217,0,0,1,185.46826,75.46094a12.00012,12.00012,0,1,1-15.75,18.10937A88.0019,88.0019,0,0,0,24,160Z"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 6">
+                    <Label Content="Noodle Extensions" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="noodleBox" Width="70" SelectedIndex="0">
+                        <ComboBoxItem Content="--"/>
+                        <ComboBoxItem Content="true"/>
+                        <ComboBoxItem Content="false"/>
+                    </ComboBox>
+                    <Path Fill="Tan" Stretch="Uniform" Stroke="Tan" StrokeThickness="1" Margin="2 0 -34 0" Width="30" Height="10" Data="M478.679 226.691c-31.649 0-60.946 19.093-80.381 52.383l-.004.006c-8.907 15.252-20.189 23.999-30.954 23.999c-10.769 0-22.052-8.75-30.958-24.006l-.014-.023c-19.435-33.276-48.726-52.36-80.368-52.36c-31.649 0-60.947 19.093-80.381 52.382c-8.907 15.257-20.19 24.007-30.958 24.007c-10.768 0-22.052-8.75-30.958-24.007c-19.435-33.289-48.732-52.382-80.381-52.382c-15.803 0-28.614 12.811-28.614 28.614s12.811 28.614 28.614 28.614c10.768 0 22.052 8.75 30.958 24.007c19.435 33.289 48.732 52.382 80.381 52.382c31.648 0 60.946-19.093 80.381-52.382c8.907-15.257 20.19-24.007 30.958-24.007c10.766 0 22.048 8.747 30.954 23.999l.004.006c19.435 33.29 48.732 52.383 80.382 52.383c31.644 0 60.939-19.088 80.373-52.369l.008-.013c8.906-15.256 20.189-24.006 30.957-24.006c15.803 0 28.614-12.812 28.614-28.614c.001-15.802-12.811-28.613-28.613-28.613z">
+                        <Path.LayoutTransform>
+                            <RotateTransform Angle="135"/>
+                        </Path.LayoutTransform>
+                    </Path>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Label Content="(Vetted) Curated" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="curatedBox" Width="70" SelectedIndex="0">
+                        <ComboBoxItem Content="--"/>
+                        <ComboBoxItem Content="true"/>
+                        <ComboBoxItem Content="false"/>
+                    </ComboBox>
 
-                <Button x:Name="searchButton" Content="Search" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="50 10" Margin="-0 0 0 16" Click="Api_Click"/>
-            </Grid>
-        </Border>
-        
-        
-        
-        
-        
+                    <Path Fill="MediumSeaGreen" Stretch="Uniform" Width="25" Height="30" Margin="6 0 -31 0" StrokeThickness="1.3" Stroke="MediumSeaGreen" Data="M16.03,18.616l5.294-4.853a1,1,0,0,1,1.352,1.474l-6,5.5a1,1,0,0,1-1.383-.03l-3-3a1,1,0,0,1,1.414-1.414ZM1,20a9.01,9.01,0,0,1,5.623-8.337A4.981,4.981,0,1,1,10,13a7.011,7.011,0,0,0-6.929,6H10a1,1,0,0,1,0,2H2A1,1,0,0,1,1,20ZM7,8a3,3,0,1,0,3-3A3,3,0,0,0,7,8Z"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 6">
+                    <Label Content="(Created by verified mapper) Verified" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="verifiedBox" Width="70" SelectedIndex="0">
+                        <ComboBoxItem Content="--"/>
+                        <ComboBoxItem Content="true"/>
+                        <ComboBoxItem Content="false"/>
+                    </ComboBox>
+                    <Path Fill="Purple" Stroke="Black" VerticalAlignment="Center" StrokeThickness="0" Margin="4 0 -30 0" Data="M21.007 8.27C22.194 9.125 23 10.45 23 12c0 1.55-.806 2.876-1.993 3.73.24 1.442-.134 2.958-1.227 4.05-1.095 1.095-2.61 1.459-4.046 1.225C14.883 22.196 13.546 23 12 23c-1.55 0-2.878-.807-3.731-1.996-1.438.235-2.954-.128-4.05-1.224-1.095-1.095-1.459-2.611-1.217-4.05C1.816 14.877 1 13.551 1 12s.816-2.878 2.002-3.73c-.242-1.439.122-2.955 1.218-4.05 1.093-1.094 2.61-1.467 4.057-1.227C9.125 1.804 10.453 1 12 1c1.545 0 2.88.803 3.732 1.993 1.442-.24 2.956.135 4.048 1.227 1.093 1.092 1.468 2.608 1.227 4.05Zm-4.426-.084a1 1 0 0 1 .233 1.395l-5 7a1 1 0 0 1-1.521.126l-3-3a1 1 0 0 1 1.414-1.414l2.165 2.165 4.314-6.04a1 1 0 0 1 1.395-.232Z"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel VerticalAlignment="Bottom" Margin="0 0 0 76">
+                <Grid>
+                    <Label Content="Tags" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 4" FontSize="30"/>
+                    <Button Content="Reset Tags" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="20 5" Margin="0 0 30 8" Click="Reset_Tags_Click"/>
+                </Grid>
+
+
+
+                <Border Background="{DynamicResource ScrollView.Background}" VerticalAlignment="Bottom" Margin="30 0 30 0" CornerRadius="12" Padding="0 1">
+                    <WrapPanel x:Name="tagPanel" Margin="4">
+                        <ToggleButton Content="alternative"             Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="ambient"                 Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="anime"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="classical-orchestral"    Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="comedy-meme"             Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="dance"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="drum-and-bass"           Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="electronic"              Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="funk-disco"              Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="hip-hop-rap"             Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="holiday"                 Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="house"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="indie"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="instrumental"            Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="j-pop"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="j-rock"                  Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="jazz"                    Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="k-pop"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="metal"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="pop"                     Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="punk"                    Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="rock"                    Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="swing"                   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="tv-movie-soundtrack"     Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="techno"                  Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="trance"                  Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="video-game-soundtrack"   Margin="3" Padding="5 2"/>
+                        <ToggleButton Content="vocaloid"                Margin="3" Padding="5 2"/>
+                    </WrapPanel>
+                </Border>
+
+
+            </StackPanel>
+
+            <Button x:Name="searchButton" Content="Search" HorizontalAlignment="Center" VerticalAlignment="Bottom" Padding="50 10" Margin="-0 0 0 16" Click="Api_Click"/>
+        </Grid>
+
+
+
+
+
 
 
         <!-- Right side -->
         <Grid Margin="500 0 0 0">
 
 
-
-            <ScrollViewer x:Name="scrollView" Background="{DynamicResource ScrollView.Background}" Margin="0 0 0 55" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="1 0 0 1" HorizontalScrollBarVisibility="Visible">
+            <!--  HorizontalScrollBarVisibility="Visible" put here if you want to horizontal to extend -->
+            <ScrollViewer x:Name="scrollView" Background="{DynamicResource ScrollView.Background}" Margin="0 0 0 55" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="1 0 0 1">
                 <StackPanel x:Name="songPanel" Margin="10 0 10 10">
 
                     <d:Grid Width="960">
@@ -175,9 +152,9 @@
             </ScrollViewer>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0 0 0 10">
-                <Button Content="Previous Page" Width="150" Height="35" Click="Previous_Click"/>
+                <Button x:Name="previousButton" Content="Previous Page" Width="150" Height="35" Click="Previous_Click"/>
                 <TextBox x:Name="pageBox" Text="0" Width="100" VerticalAlignment="Center" Margin="10 0 10 0" HorizontalContentAlignment="Center" CommandManager.PreviewExecuted="pageBox_PreviewExecuted" PreviewTextInput="pageBox_PreviewTextInput"/>
-                <Button Content="Next Page" Width="150" Height="35" Click="Next_Click"/>
+                <Button x:Name="nextButton" Content="Next Page" Width="150" Height="35" Click="Next_Click"/>
             </StackPanel>
 
             <Button Content="Download All" Width="100" Height="29" Margin="10 0 0 13" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="14" Click="Download_All_Click"/>
@@ -200,6 +177,22 @@
 
         
         <!-- If I ever need to overlay something for testing, put it right under this message as it overlays everything. -->
+
+        <!-- Currently leaving this code in for scroll testing since the smooth scrolling stuffs is pretty broken and keeping here to test in the future ->
+        <ScrollViewer Background="White" Width="500" Margin="110 30 0 30" BorderBrush="Black" BorderThickness="1">
+            
+
+            <TextBlock TextWrapping="Wrap" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lectus vestibulum mattis ullamcorper velit sed ullamcorper. Consectetur a erat nam at. Dictumst quisque sagittis purus sit. Diam in arcu cursus euismod quis viverra nibh cras pulvinar. Dis parturient montes nascetur ridiculus mus mauris vitae. Euismod elementum nisi quis eleifend. Lacinia at quis risus sed vulputate odio. Venenatis tellus in metus vulputate. Nisl tincidunt eget nullam non. Cursus metus aliquam eleifend mi in nulla posuere sollicitudin. Ac tincidunt vitae semper quis lectus nulla at. Mauris pharetra et ultrices neque. Vel orci porta non pulvinar.
+Elementum tempus egestas sed sed risus pretium quam vulputate. Morbi tristique senectus et netus et malesuada fames ac. Vulputate sapien nec sagittis aliquam malesuada bibendum arcu vitae. Diam quam nulla porttitor massa id neque aliquam vestibulum. Semper auctor neque vitae tempus quam. Dolor morbi non arcu risus. Dictum fusce ut placerat orci nulla pellentesque dignissim enim. Integer eget aliquet nibh praesent tristique magna sit. Vitae sapien pellentesque habitant morbi tristique. Posuere sollicitudin aliquam ultrices sagittis orci. Felis bibendum ut tristique et. Etiam erat velit scelerisque in dictum.
+Enim sit amet venenatis urna cursus eget nunc scelerisque viverra. Nam aliquam sem et tortor consequat id porta nibh venenatis. Dolor sit amet consectetur adipiscing elit duis tristique sollicitudin nibh. Nisi lacus sed viverra tellus in hac habitasse. Erat nam at lectus urna duis convallis convallis tellus id. Non odio euismod lacinia at quis risus sed. Sapien pellentesque habitant morbi tristique senectus et netus et. Duis ultricies lacus sed turpis tincidunt id aliquet. Massa enim nec dui nunc mattis enim ut. Accumsan tortor posuere ac ut. Arcu non odio euismod lacinia. Pretium fusce id velit ut tortor pretium viverra suspendisse potenti. In aliquam sem fringilla ut morbi tincidunt augue. Diam in arcu cursus euismod quis. Elementum integer enim neque volutpat ac tincidunt vitae semper. Enim nunc faucibus a pellentesque sit. Egestas dui id ornare arcu.
+Id cursus metus aliquam eleifend mi in nulla posuere. Vitae sapien pellentesque habitant morbi tristique. Enim lobortis scelerisque fermentum dui faucibus. Non curabitur gravida arcu ac tortor dignissim convallis. Scelerisque eu ultrices vitae auctor eu augue ut. Vulputate mi sit amet mauris commodo quis. Aliquam id diam maecenas ultricies mi eget. Phasellus vestibulum lorem sed risus. Morbi tincidunt ornare massa eget egestas purus viverra. Justo donec enim diam vulputate. Volutpat lacus laoreet non curabitur gravida. Est ullamcorper eget nulla facilisi etiam. Mi in nulla posuere sollicitudin aliquam. Euismod lacinia at quis risus sed vulputate odio. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Elit sed vulputate mi sit amet mauris commodo. Elit at imperdiet dui accumsan sit amet nulla facilisi morbi. Rhoncus aenean vel elit scelerisque mauris pellentesque pulvinar pellentesque habitant. Iaculis nunc sed augue lacus viverra vitae congue eu consequat. Blandit aliquam etiam erat velit scelerisque. Et malesuada fames ac turpis egestas sed tempus. Nulla pellentesque dignissim enim sit amet venenatis urna cursus. Lacus vel facilisis volutpat est velit egestas dui id. Ut morbi tincidunt augue interdum velit euismod in pellentesque massa. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Venenatis a condimentum vitae sapien pellentesque habitant."/>
+
+            
+
+
+        </ScrollViewer>
+        -->
+
 
 
 

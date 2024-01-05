@@ -12,14 +12,22 @@
     
     <!-- ListView and ListViewItem dont seem to work properly, but not sure if I'm just doing it wrong or 
             if there is something wrong with the this controltemplate. might want to check at some point. 
-    Notes: 
-    bug kind of: when trying to resize window top right, its basically impossible thanks to the button taking priority rather than the resize option. Try to fix that at some point
+    Notes:
+    
+    - Bug when trying to resize window top right, its basically impossible thanks to the button taking priority rather than the resize option. Try to fix that at some point. Same issue on Anime Organizer.
     
     bug: FIXED fix that issue with the window overflowing when maximized thanks. 
     
     
     NOTE: THIS IS A REMINDER TO REMAKE THE COMBO BOX SECTION WITH THE NEW WPF CODE SHIT, GET THAT VERSION WORKING, THEN PORT THAT BACK OVER TO THAT FILE, AS WELL AS KEEPING IT ON THIS ONE.
             - also for the window as well as I haven't done that yet with the fix and issue listed above.
+    
+    
+    
+    Note about ClipToBounds Value in CustomWindowStyle: Setting this to true makes it so that any content can not overflow out of the parent that has this set to true. I had to do this because I figured out
+            that the little hack I did to get the curved scrollviewer working had the object overflowing onto the border of the window and cut off the border in certain locations. After I noticed this I figuerd
+            out what the issue was and fixed it accordingly.
+    
     
     
     
@@ -98,9 +106,8 @@
                     <Grid>
 
                         <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <!-- Changed -->
+                            <!-- Changed. Look at notes to remember reason to this change. -->
                             <Grid ClipToBounds="True">
-                                <!-- Changed -->
                                 <AdornerDecorator Margin="0,30,0,0">
                                     <ContentPresenter/>
                                 </AdornerDecorator>
@@ -731,8 +738,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                    <!-- This entire border was added in myself. You can se the original version commented out below. This is not from the theme file so will need to be done properly on 
-                            that version at some point as well. -->
+                    <!-- This entire border was added in myself. You can see the original version in either Anime Organizer Code or Original file. 
+                            This is not from the theme file so will need to be done properly on that version at some point as well. -->
                     <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0 0 0 16">
                         <Grid x:Name="Grid">
                             <Grid.ColumnDefinitions>

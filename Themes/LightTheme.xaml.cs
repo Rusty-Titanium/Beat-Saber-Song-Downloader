@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -25,12 +26,48 @@ namespace Beat_Saber_Song_Downloader.Themes
     {
         /**
          * Note for this entire document:
+         * 
+         * Note: scroll view animation thingy scrolls down too fast when items are loading in. Not sure this is fixable but please look into it. also when tryin to 
+         *         free spin scroll it can sometimes hang up and like lag behind or something. Not really sure what is happening so I want to see if its fixable.
+         * Note: Never tested whether 2 or more scrollviews and or bars would fuck up the smooth scrolling thingy.
+         * Note: Arrow keys left and right dont have smooth scrolling when trying to go horizontal. up and down don't even do anything. Please fix.
+         * 
+         * 
+         * 
          * - Make sure to read through all of this documents commented sections, for either removal or notes that something needs to be done.
          * - I would like to eventually integrate the horizontal scrolling and vertical scrolling into a single class, but for now I have everything working and I might
-         *      still make adjustments to thinks separately so for now it just makes things simpler, but please think about this for the future.
+         *      still make adjustments to things separately so for now it just makes things simpler, but please think about this for the future.
          * - 
-         * - 
+         * - So I am starting to believe that there is like an acceleration and decceleration of the scroll to most other applications, instead of being instant like how this currently works. I think this is
+         *      why I believe the scroll animation still looks a bit funky. I need to see if there is an algorithm out there for this. Think of it like each time I scroll it can 
+         *      scroll faster but its like blocks of increased intensity and then just stops at the end, where I want more of like a gradient speed on both start and end movement.
          * 
+         * Test for the note above: Record scrolling through obs or something so we can see if there is some form of accel/decceleration stuffs at work for things like chrome.
+         * 
+         * Test at some point: test for 2 things of horizontal scrolling to see if they conflict or not. (haven't yet still need to do this.)
+         * 
+         * note to look up later: can you add time to an animation while its currently running? (most likely a no. Will need a better way to make things look better.)
+         * 
+         * 
+         * 
+         * Bug/oversight: So horizontal scrolling has its own code stolen from the main code and found a weird bug with it. I should integrate normalized scrolling
+         *                  or whatever the vertical version implements so values can't be larger than the max or smaller than the minimum(I implemented a bandaid fix for now). 
+         *                  ScrollViewerPreviewMouseWheel is the class that stops the vertical scrolling from having the same issues. I will probably want to
+         *                  merge the class soon. What i have currently put in place is a quick check for the horizontal movement for tilt and added functionality
+         *                  to the Normalized position shit.
+         *          
+         * 
+         * Note: I have at least either 3 or 4 spots that check for the min and mix of the scroll before doing an action, and setting values to 0 or max height/width if a value
+         *          is too big/small. I should really just use that normalize scroll position method and use it for everyone, as I believe it can be used pretty universally.
+         * 
+         * Note: when I eventually merge these classes together, I want to make sure that scrolling both with the arrow keys and the thumb at the same time doesn't cause any weird
+         *          jittering, I should probably have some form of system to check if another action is already happening.
+         * Note: when you grab the thumb and start moving it, if you start scrolling in chrome, the thumb will disconnect from the mousedown and will only take input from the scrollwheel.
+         * 
+         * Bug: when pressing down and scrolling down at the same time, it gets a speed boost. Please disallow one or the other when both are happening.
+         * 
+         * When bug testing, make sure to go back and forth between tilt scrolling, scrolling, and arrow scrolling. Need to make sure that values aren't going above maximum
+         *      or below minimum. Make sure there is no jerkiness and no weirdness. This note is mainly when I merge the tilt mouse wheel and smooth scrolling code together.
          */
 
 
@@ -42,7 +79,7 @@ namespace Beat_Saber_Song_Downloader.Themes
 
         private void listboxLoaded(object sender, RoutedEventArgs e)
         {
-            ScrollAnimationBehavior.listboxLoaded(sender, e);
+            //ScrollAnimationBehavior.listboxLoaded(sender, e); // original
         }
 
 
@@ -101,9 +138,6 @@ namespace Beat_Saber_Song_Downloader.Themes
 
 
 
-
-    // I haven't personally looked at this much in detail, but I definitely want to take a closer look at some point.
-
     public static class TiltWheelHorizontalScroller
     {
         static HashSet<int> controls = new HashSet<int>();
@@ -132,6 +166,7 @@ namespace Beat_Saber_Song_Downloader.Themes
 
 
         // This method should really be in either a class of its own or just in the main one, as both the tilt class and the smooth scrolling class use this and its weird.
+        //      This is because the listbox shit uses it but that doesn't even work atm, so for now it can stay as is
         /// <summary>
         /// Finds first child of provided type. If child not found, null is returned
         /// </summary>
@@ -214,6 +249,8 @@ namespace Beat_Saber_Song_Downloader.Themes
             return IntPtr.Zero;
         }
 
+
+
         private void Scroll(IntPtr wParam)
         {
             /**
@@ -224,12 +261,29 @@ namespace Beat_Saber_Song_Downloader.Themes
             
             int delta = (HIWORD(wParam) > 0 ? 1 : -1) * scrollFactor;
 
+            // Slightly modified version of the ScrollAnimationBehavior class for the animation stuffs. I figured it didn't need to have anything special for horizontal scrolling
+            //      (since I doubt a lot of people use it, and honestly this is pretty smooth to begin with anyway so I think it's fine.), so its just has a fairly stiff animation
+            //      but honestly I'm ok with that, might update it to a accel/deccel if I ever implement that.
             scrollViewer.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, null);
             DoubleAnimation horizontalAnimation = new DoubleAnimation();
             horizontalAnimation.From = scrollViewer.HorizontalOffset;
-            horizontalAnimation.To = scrollViewer.HorizontalOffset + delta;
-            horizontalAnimation.Duration = new Duration( ScrollAnimationBehavior.GetTimeDuration(scrollViewer));
+
+            double toValue = scrollViewer.HorizontalOffset + delta;
+
+            // This is the fix that made sure that the tilt wheel wasn't making negative or overly large values. This makes it so Arrow key interaction is also fine.
+            
+            if (toValue < 0.0)
+                toValue = 0;
+            else if (toValue > scrollViewer.ScrollableWidth)
+                toValue = scrollViewer.ScrollableWidth;
+            
+
+            horizontalAnimation.To = toValue;
+            horizontalAnimation.Duration = new Duration(ScrollAnimationBehavior.GetTimeDuration(scrollViewer));
             scrollViewer.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, horizontalAnimation);
+
+            Debug.WriteLine("From: " + horizontalAnimation.From + "    To: " + horizontalAnimation.To + "    ");
+
         }
 
         private static int HIWORD(IntPtr ptr) => (short)((((int)ptr.ToInt64()) >> 16) & 0xFFFF);
@@ -244,15 +298,19 @@ namespace Beat_Saber_Song_Downloader.Themes
 
 
     /**
+     * https://stackoverflow.com/questions/20731402/animated-smooth-scrolling-on-scrollviewer
+     * this is where this code comes from.
+     * 
+     * 
      * Notes about this class:
      * - I figured out most of this code at this point. basically the reason the listbox is breaking is because since these methods are shared, things break. 
      *      Ex. the math behind the scrollview is that if you scroll once, lets say that it scrolls from pixel 0 to pixel 120. this works fine for basic scrollviews.
      *      The problem when it attempts the same math with listbox is that the From value is actually the index of the listbox, and the To value is also the index, which
      *      you think would be good, but the problem is that it is using the same offset as the scrollview, which means its trying to go from item 0 to item 120, which 
-     *      obviously is too much. In time I could try coming back to this and fix the listbox, but even if I do I don't know if it would work because I still haven't been
-     *      able to see the animation play properly so I don't know if its worth it. That and I couldn't turn off virtualization so the smooth scrolling would be kind of 
-     *      useless to begin with. It would kind of require a complete rewrite if I wanted to get this working properly. I was also planning on seeing if I could change 
-     *      the base scrollview stuff as well to 1. make my own and 2. make the code simplier to understand, as currnetly it just feels like a web of methods.
+     *      obviously is too much. In time I could try coming back to this and fix the listbox (like figuring out how to virtualize it cause that wasn't working for some reason), 
+     *      but even if I do, I don't know if it would work because I still haven't been able to see the animation play properly so I don't know if its worth it. That and I 
+     *      couldn't turn off virtualization so the smooth scrolling would be kind of useless to begin with. It would kind of require a complete rewrite if I wanted to get 
+     *      this working properly.
      *      
      * - Note: All the horizontal methods, properties, etc were added in by me. tl;dr dont add in the event stuffs for listbox as it just doesn't work properly. Fix 
      *      at a later date please and thanks. Also might want to try cleaning up the code at some point.
@@ -263,14 +321,34 @@ namespace Beat_Saber_Song_Downloader.Themes
     // Everything here is code for smooth scrolling.
     public static class ScrollAnimationBehavior
     {
-        public static double intendedLocation = 0;
         private static ScrollViewer _listBoxScroller = new ScrollViewer();
 
+
+        #region IntendedLocation Property
+
+        public static DependencyProperty IntendedLocationProperty = DependencyProperty.RegisterAttached
+            ("IntendedLocation", typeof(double), typeof(ScrollAnimationBehavior), new PropertyMetadata(0.0));
+
+        public static void SetIntendedLocation(FrameworkElement target, double value)
+        {
+            target.SetValue(IntendedLocationProperty, value);
+        }
+
+        public static double GetIntendedLocation(FrameworkElement target)
+        {
+            return (double)target.GetValue(IntendedLocationProperty);
+        }
+
+        #endregion
+
+        
+        // Quickly abandoning this set and get properties cause they caused way too many headaches. I might get rid of this property too if I can find a way to use an already existing one.
         #region VerticalOffset Property
 
         public static DependencyProperty VerticalOffsetProperty = DependencyProperty.RegisterAttached
             ("VerticalOffset", typeof(double), typeof(ScrollAnimationBehavior), new UIPropertyMetadata(0.0, OnVerticalOffsetChanged));
 
+        
         public static void SetVerticalOffset(FrameworkElement target, double value)
         {
             target.SetValue(VerticalOffsetProperty, value);
@@ -280,8 +358,11 @@ namespace Beat_Saber_Song_Downloader.Themes
         {
             return (double)target.GetValue(VerticalOffsetProperty);
         }
+        
 
         #endregion
+        
+
 
         #region HorizontalOffset Property
 
@@ -302,9 +383,8 @@ namespace Beat_Saber_Song_Downloader.Themes
 
         #region TimeDuration Property
 
-        // Currently hardcoded as there doesn't really need to have differences in scrolling speed. Might be changed once I come back and tighten up animations.
         public static DependencyProperty TimeDurationProperty = DependencyProperty.RegisterAttached
-            ("TimeDuration", typeof(TimeSpan), typeof(ScrollAnimationBehavior), new PropertyMetadata(new TimeSpan(0, 0, 0, 0, 100))); // days, hours, minutes, seconds, milliseconds.
+            ("TimeDuration", typeof(TimeSpan), typeof(ScrollAnimationBehavior), new PropertyMetadata(new TimeSpan(0, 0, 0, 0, 150))); // original was 150 | days, hours, minutes, seconds, milliseconds.
 
         public static void SetTimeDuration(FrameworkElement target, TimeSpan value)
         {
@@ -321,7 +401,7 @@ namespace Beat_Saber_Song_Downloader.Themes
         #region PointsToScroll Property
 
         public static DependencyProperty PointsToScrollProperty = DependencyProperty.RegisterAttached
-            ("PointsToScroll", typeof(double), typeof(ScrollAnimationBehavior), new PropertyMetadata(0.0));
+            ("PointsToScroll", typeof(double), typeof(ScrollAnimationBehavior), new PropertyMetadata(35.0)); // originally 0.0. I want this value to be the same as the normal scroll for now so I'm changing it to 60
 
         public static void SetPointsToScroll(FrameworkElement target, double value)
         {
@@ -339,29 +419,61 @@ namespace Beat_Saber_Song_Downloader.Themes
 
         private static void AnimateScroll(ScrollViewer scrollViewer, double ToValue)
         {
-            scrollViewer.BeginAnimation(VerticalOffsetProperty, null); // From what I see, it makes the animation less janky like its stopping the previous animation to start a new one with a new speed etc.
+            scrollViewer.BeginAnimation(VerticalOffsetProperty, null); // This runs to make animation less jittery. Probably can't be removed. This stops jitters because it kills the current running animation, then the code below creates a new one and then starts there, allowing for a smooth viewing experience.
             DoubleAnimation verticalAnimation = new DoubleAnimation();
             verticalAnimation.From = scrollViewer.VerticalOffset;
             verticalAnimation.To = ToValue;
             verticalAnimation.Duration = new Duration(GetTimeDuration(scrollViewer));
             scrollViewer.BeginAnimation(VerticalOffsetProperty, verticalAnimation);
 
-            Debug.WriteLine("From: " + verticalAnimation.From + " To: " + verticalAnimation.To);
+            //Debug.WriteLine("From: " + verticalAnimation.From + " To: " + verticalAnimation.To);
         }
 
+
+        // this one is for testing the keydown and keyup events. may become permanent depending on how I can implement this. prob wont, but I may remove the original animatescroll
+        //      method in favor of this one because then I can implement my smooth scrolling arrow key stuffs.
+        private static void AnimateScrollTesting(ScrollViewer scrollViewer, double ToValue, Duration duration, Orientation orientation)
+        {
+            // has the orientation value, but currently isn't used until I merge stuff together :)
+
+            scrollViewer.BeginAnimation(VerticalOffsetProperty, null); // This runs to make animation less jittery. Probably can't be removed. This stops jitters because it kills the current running animation, then the code below creates a new one and then starts there, allowing for a smooth viewing experience.
+            DoubleAnimation verticalAnimation = new DoubleAnimation();
+            verticalAnimation.From = scrollViewer.VerticalOffset;
+            verticalAnimation.To = ToValue;
+            verticalAnimation.Duration = duration;
+            scrollViewer.BeginAnimation(VerticalOffsetProperty, verticalAnimation);
+
+            //Debug.WriteLine(" From AnimateScrollTesting | From: " + verticalAnimation.From + " To: " + verticalAnimation.To);
+        }
+
+
+
+
         #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
         // ScrollViewer only shit
 
         #region scrollerLoaded Event Handler
-        // Used to be private. Had to be made public as I had to circumvent the IsEnabled variables as there was no way to create that in the xaml. (Well there
-        //      probaby was but this was a lot simpler)
+
         public static void scrollerLoaded(object sender, RoutedEventArgs e)
         {
             ScrollViewer scroller = sender as ScrollViewer;
-
             SetEventHandlersForScrollViewer(scroller);
         }
 
@@ -371,22 +483,37 @@ namespace Beat_Saber_Song_Downloader.Themes
         // this isn't actually only scrollviewer. The listview thing also used this method.
         private static void SetEventHandlersForScrollViewer(ScrollViewer scroller)
         {
-            scroller.PreviewMouseWheel += new MouseWheelEventHandler(ScrollViewerPreviewMouseWheel);
-            scroller.PreviewKeyDown += new KeyEventHandler(ScrollViewerPreviewKeyDown);
+            scroller.PreviewMouseWheel += ScrollViewerPreviewMouseWheel;
+            scroller.PreviewKeyDown += ScrollViewerPreviewKeyDown;
             scroller.PreviewMouseLeftButtonUp += Scroller_PreviewMouseLeftButtonUp;
+            scroller.PreviewKeyUp += ScrollViewerPreviewKeyUp; // I added this
+
         }
 
         #endregion
 
+
+
+
+
+
+
+
+
+
+
+
+
+
         #region ScrollViewerPreviewMouseWheel Event Handler
-        // THIS IS THE METHOD YOU WILL NEED TO GRAB FROM IF YOU WANTED TO GET SMOOTH HORIZONTAL MOVEMENT.
         private static void ScrollViewerPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            double mouseWheelChange = (double)e.Delta;
             ScrollViewer scroller = (ScrollViewer)sender;
-            double newVOffset = intendedLocation - (mouseWheelChange * 1); // 2 can be changed to be higher (faster) or lower (slower)
+            double intendedLocation = GetIntendedLocation(scroller);
+            double mouseWheelChange = (double)e.Delta;
+            double newVOffset = intendedLocation - (mouseWheelChange * 1); // Original value was 2 (pretty fast, current value is 0.5, more manageable). Can be changed to be higher (faster) or lower (slower)
             //We got hit by the mouse again. jump to the offset.
-            scroller.ScrollToVerticalOffset(intendedLocation);
+            scroller.ScrollToVerticalOffset(intendedLocation); // explanation for this is wack, but I do believe that having this commented out makes the visuals feel a bit more sluggish but its hard to tell. Keep it uncommented for now.
 
             if (newVOffset < 0)
             {
@@ -398,7 +525,7 @@ namespace Beat_Saber_Song_Downloader.Themes
             }
 
             AnimateScroll(scroller, newVOffset);
-            intendedLocation = newVOffset;
+            SetIntendedLocation(scroller, newVOffset);
             e.Handled = true;
         }
 
@@ -406,54 +533,302 @@ namespace Beat_Saber_Song_Downloader.Themes
 
         #region ScrollViewerPreviewKeyDown Handler
 
+        private static int num = 0;
+
+
+
+        // 2945 pixelheight for my code for the height of pixels for the content in the ScrollViewer, and it runs at 4 seconds currently when you hold the button down.
+        // this means I want a velocity of 736.25 pixels a second for that smooth speed. DONT DELETE AS I MAY TWEAK THE VELOCITY VALUES IN THE FUTURE.
+
+
+        // START HERE WHEN YOU START CODING AGAIN:
+        //- implement the check of if the key is a repeat, and if it is, if its the first repeat, and start the animation as normal, otherwise keep going.
+        // - clean up code in keydown event and make it horizontal compatible
+        //
+
+        // I noticed that scrolling with mouse wheel makes it per 60 points, where as here per key is 50 points. I may want to find a way to normalize this somehow.
         private static void ScrollViewerPreviewKeyDown(object sender, KeyEventArgs e)
         {
             ScrollViewer scroller = (ScrollViewer)sender;
-
             Key keyPressed = e.Key;
-            double newVerticalPos = GetVerticalOffset(scroller);
+
+            double newVerticalPos = scroller.VerticalOffset; // original. Just straight wouldn't work, and this method was only used here. So not sure how the original worked.
+            double newHorizontalPos = scroller.HorizontalOffset; // added myself
+
             bool isKeyHandled = false;
 
+            //Debug.WriteLine("");
+            //Debug.WriteLine("Key: " + keyPressed.ToString() + "\t\tOGVerticalPos: " + newVerticalPos + "\t\tNewVertPos: " + (newVerticalPos + GetPointsToScroll(scroller)));
+
+
+            ///////////////////////////////////////////////////////////////////////////////////////////
+            // this is all testing code
+
+
+            if (!e.IsRepeat)
+            {
+                
+                if (keyPressed == Key.Down)
+                {
+                    //newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos + GetPointsToScroll(scroller)), Orientation.Vertical);
+                    newVerticalPos = scroller.ScrollableHeight;
+                    SetIntendedLocation(scroller, newVerticalPos);
+                    isKeyHandled = true;
+                }
+                else if (keyPressed == Key.Up)
+                {
+                    //newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos - GetPointsToScroll(scroller)), Orientation.Vertical);
+                    newVerticalPos = 0;
+                    SetIntendedLocation(scroller, newVerticalPos);
+                    isKeyHandled = true;
+                }
+
+
+
+                //Debug.WriteLine("Num: " + num + "\tIsRepeat: " + e.IsRepeat);
+                //num++;
+                //Debug.Write("\nnewVerticalPos != GetVerticalOffset(scroller) = " + (newVerticalPos != GetVerticalOffset(scroller)) + "\n" + newVerticalPos + " != " + GetVerticalOffset(scroller));
+
+
+                if (newVerticalPos != scroller.VerticalOffset)
+                {
+                    //velocity = 736.25 pixels a second
+                    // velocity = distance / time 
+
+                    // time * velocity = distance
+                    // time = distance / velocity (final equation)
+
+
+                    double distance; // distance to cover
+
+                    // shouldn't be doing this check here honestly, there are like 2 opportunities before this place to check for up or down key, please fix at earliest convenience.
+                    // need to incorporate page up and down as well in this section, but not doing that rn and will clean everything up later.
+                    if (keyPressed == Key.Down)
+                    {
+                        distance = scroller.ScrollableHeight - scroller.VerticalOffset;
+                    }
+                    else //if (keyPressed == Key.Up)
+                    {
+                        distance = scroller.VerticalOffset;
+                    }
+
+
+                    double velocity = 736.25;
+                    double time = distance / velocity;
+
+                    //Debug.WriteLine("Time: " + time + "\t\t" + distance + " / " + velocity + "\t\tScrollableHeight: " + scroller.ScrollableHeight);
+
+                    int seconds = (int) time;
+                    double remainder = time - (double)seconds;
+                    int milliseconds = (int)(remainder * 1000);
+
+                    SetIntendedLocation(scroller, newVerticalPos);
+                    AnimateScrollTesting(scroller, newVerticalPos, new TimeSpan(0, 0, 0, seconds, milliseconds), Orientation.Vertical); // days, hours, minutes, seconds, milliseconds | Note: The duration here is hard coded when it shouldn't be. Duration needs to dynamically change based on distance from max or min so the speed is the same each time.
+
+                }
+                else if (newHorizontalPos != GetHorizontalOffset(scroller))
+                {
+                    // this section hasn't been touched at all. just a reminder.
+
+
+                    SetIntendedLocation(scroller, newHorizontalPos); // original
+                                                                     //AnimateScroll(scroller, newHorizontalPos); // original (cant use this as it is only for vertical scrolling at the moment.)
+
+                    // forced code duplication that will be fixed when I merge code together.
+                    scroller.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, null);
+                    DoubleAnimation horizontalAnimation = new DoubleAnimation();
+                    horizontalAnimation.From = scroller.HorizontalOffset;
+                    horizontalAnimation.To = newHorizontalPos;
+                    horizontalAnimation.Duration = new Duration(ScrollAnimationBehavior.GetTimeDuration(scroller));
+                    scroller.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, horizontalAnimation);
+
+                    //Debug.WriteLine("From: " + horizontalAnimation.From + " To: " + horizontalAnimation.To);
+                }
+
+            }
+            else if (keyPressed == Key.Up || keyPressed == Key.Down || keyPressed == Key.Left || keyPressed == Key.Right || keyPressed == Key.PageUp || keyPressed == Key.PageDown)
+            {
+                isKeyHandled = true;
+            }
+
+
+
+            
+
+
+
+
+
+
+            ///////////////////////////////////////////////////////////////////////////////////////////
+
+            /**
+            ScrollViewer scroller = (ScrollViewer)sender;
+            Key keyPressed = e.Key;
+
+            double newVerticalPos = GetVerticalOffset(scroller); // original. Just straight wouldn't work, and this method was only used here. So not sure how the original worked.
+            //double newVerticalPos = GetIntendedLocation(scroller);
+            double newHorizontalPos = GetHorizontalOffset(scroller); // added myself
+
+            bool isKeyHandled = false;
+
+            //Debug.WriteLine("");
+            //Debug.Write("Key: " + keyPressed.ToString() + "\t\tOGHorizontalPos: " + newHorizontalPos + "\t\tNewHorPos: " + (newHorizontalPos + GetPointsToScroll(scroller)));
+            Debug.Write("Key: " + keyPressed.ToString() + "\t\tOGVerticalPos: " + newVerticalPos + "\t\tNewVertPos: " + (newVerticalPos + GetPointsToScroll(scroller)));
+
+            
             if (keyPressed == Key.Down)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos + GetPointsToScroll(scroller)), Orientation.Vertical);
-                intendedLocation = newVerticalPos;
+                SetIntendedLocation(scroller, newVerticalPos);
                 isKeyHandled = true;
             }
             else if (keyPressed == Key.PageDown)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos + scroller.ViewportHeight), Orientation.Vertical);
-                intendedLocation = newVerticalPos;
+                SetIntendedLocation(scroller, newVerticalPos);
                 isKeyHandled = true;
             }
             else if (keyPressed == Key.Up)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos - GetPointsToScroll(scroller)), Orientation.Vertical);
-                intendedLocation = newVerticalPos;
+                SetIntendedLocation(scroller, newVerticalPos);
                 isKeyHandled = true;
             }
             else if (keyPressed == Key.PageUp)
             {
                 newVerticalPos = NormalizeScrollPos(scroller, (newVerticalPos - scroller.ViewportHeight), Orientation.Vertical);
-                intendedLocation = newVerticalPos;
+                SetIntendedLocation(scroller, newVerticalPos);
                 isKeyHandled = true;
             }
 
+            else if (keyPressed == Key.Left)
+            {
+                newHorizontalPos = NormalizeScrollPos(scroller, (newHorizontalPos - GetPointsToScroll(scroller)), Orientation.Horizontal);
+                SetIntendedLocation(scroller, newHorizontalPos);
+                isKeyHandled = true;
+            }
+            else if (keyPressed == Key.Right)
+            {
+                newHorizontalPos = NormalizeScrollPos(scroller, (newHorizontalPos + GetPointsToScroll(scroller)), Orientation.Horizontal);
+                SetIntendedLocation(scroller, newHorizontalPos);
+                isKeyHandled = true;
+            }
+            
+
+
+            Debug.WriteLine("Num: " + num);
+            num++;
+
+            //Debug.Write("\nnewVerticalPos != GetVerticalOffset(scroller) = " + (newVerticalPos != GetVerticalOffset(scroller)) + "\n" + newVerticalPos + " != " + GetVerticalOffset(scroller));
+
+
             if (newVerticalPos != GetVerticalOffset(scroller))
             {
-                intendedLocation = newVerticalPos;
-                AnimateScroll(scroller, newVerticalPos);
+                SetIntendedLocation(scroller, newVerticalPos);
+                AnimateScroll(scroller, newVerticalPos); // original
+            }
+            else if (newHorizontalPos != GetHorizontalOffset(scroller))
+            {
+                SetIntendedLocation(scroller, newHorizontalPos); // original
+                //AnimateScroll(scroller, newHorizontalPos); // original (cant use this as it is only for vertical scrolling at the moment.)
+
+                // forced code duplication that will be fixed when I merge code together.
+                scroller.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, null);
+                DoubleAnimation horizontalAnimation = new DoubleAnimation();
+                horizontalAnimation.From = scroller.HorizontalOffset;
+                horizontalAnimation.To = newHorizontalPos;
+                horizontalAnimation.Duration = new Duration(ScrollAnimationBehavior.GetTimeDuration(scroller));
+                scroller.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, horizontalAnimation);
+
+                Debug.WriteLine("From: " + horizontalAnimation.From + " To: " + horizontalAnimation.To);
+            }
+             */
+
+
+            e.Handled = isKeyHandled;
+        }
+
+
+
+
+        // mostly a testing method for now, but might be necessary in the future not sure yet.
+        private static void ScrollViewerPreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            ScrollViewer scroller = (ScrollViewer)sender;
+            Key keyPressed = e.Key;
+
+            double newVerticalPos = scroller.VerticalOffset; // original. Just straight wouldn't work, and this method was only used here. So not sure how the original worked.
+            double newHorizontalPos = scroller.HorizontalOffset; // added myself
+
+            bool isKeyHandled = false;
+
+
+            // for now I'm going to assume that pageup and pagedown will just with the vertical stuffs. please test this at some point.
+
+            if (keyPressed == Key.Up || keyPressed == Key.Down || keyPressed == Key.PageUp || keyPressed == Key.PageDown)
+            {
+                SetIntendedLocation(scroller, newVerticalPos);
+                isKeyHandled = true;
+
+                //Debug.Write("\nnewVerticalPos != scroller.VerticalOffset = " + (newVerticalPos != scroller.VerticalOffset) + "\n" + newVerticalPos + " != " + scroller.VerticalOffset);
+
+                AnimateScrollTesting(scroller, newVerticalPos, new TimeSpan(0, 0, 0, 0, 1), Orientation.Vertical);
+
+            }
+            else if (keyPressed == Key.Left || keyPressed == Key.Right)
+            {
+                SetIntendedLocation(scroller, newHorizontalPos);
+                isKeyHandled = true;
+
+
+                // commenting out for how since I know that horizontal wont work here just yet, but I'm prepping for it.
+
+                //AnimateScrollTesting(scroller, newHorizontalPos, new TimeSpan(0, 0, 0, 0, 1), Orientation.Horizontal);
+                /**
+                // forced code duplication that will be fixed when I merge code together.
+                scroller.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, null);
+                DoubleAnimation horizontalAnimation = new DoubleAnimation();
+                horizontalAnimation.From = scroller.HorizontalOffset;
+                horizontalAnimation.To = newHorizontalPos;
+                horizontalAnimation.Duration = new Duration(ScrollAnimationBehavior.GetTimeDuration(scroller));
+                scroller.BeginAnimation(ScrollAnimationBehavior.HorizontalOffsetProperty, horizontalAnimation);
+                 */
+
             }
 
             e.Handled = isKeyHandled;
         }
 
+
+
+
         #endregion
 
         private static void Scroller_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            intendedLocation = ((ScrollViewer)sender).VerticalOffset;
+            
+
+
+            ScrollViewer scroller = (ScrollViewer)sender;
+
+            SetVerticalOffset(scroller, scroller.VerticalOffset);
+
+
+
+            Debug.Write("From PreviewMouseLeftButtonUp | Vertical Offset: " + scroller.VerticalOffset + "\t\tFrom SetVerticalOffset Value: " + GetVerticalOffset(scroller));
+
+            SetIntendedLocation(scroller, scroller.VerticalOffset);
+
+            Debug.WriteLine("\tintended location: " + GetIntendedLocation(scroller));
         }
+
+
+
+
+
+
+
 
         #region NormalizeScrollPos Helper
 
@@ -461,10 +836,12 @@ namespace Beat_Saber_Song_Downloader.Themes
         {
             double returnValue = scrollChange;
 
+            
             if (scrollChange < 0)
             {
                 returnValue = 0;
             }
+            
 
             if (o == Orientation.Vertical && scrollChange > scroll.ScrollableHeight)
             {
@@ -479,6 +856,11 @@ namespace Beat_Saber_Song_Downloader.Themes
         }
 
         #endregion
+
+
+
+
+
 
         #region OnVerticalOffset Changed
 
@@ -505,6 +887,10 @@ namespace Beat_Saber_Song_Downloader.Themes
         }
 
         #endregion
+
+
+
+
 
 
 

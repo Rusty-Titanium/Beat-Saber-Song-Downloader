@@ -19,6 +19,7 @@ using System.Windows.Shapes;
 using System.Threading;
 using System.Windows.Media.Animation;
 using System.Windows.Controls.Primitives;
+using System.Security.Policy;
 
 namespace Beat_Saber_Song_Downloader
 {
@@ -27,13 +28,19 @@ namespace Beat_Saber_Song_Downloader
     /// </summary>
     public partial class SongControl : UserControl
     {
-
+        /**
+         * there is still mega hardcoding in this program. Please update it so I can have some way of saving it elsewhere.
+         * 
+         * 
+         */
 
         private String downloadURL, id, songName, levelAuthorName, mediaPlayerURI;
         private bool isChroma, isNoodle;
         public static SongControl oldSongControl;
         private MediaPlayer mediaPlayer;
 
+        public static int ImageLoadedControlCount = 0;
+        public static MainWindow mainWin; // This is set at the beginning of the application runtime.
 
 
         public SongControl()
@@ -46,13 +53,9 @@ namespace Beat_Saber_Song_Downloader
             String preview, List<String> tags, String id, String songName, String levelAuthorName, bool verified, bool isCurated, bool isChroma, bool isNoodle)
         {
             
-            //this.Visibility = Visibility.Hidden;
+            this.Visibility = Visibility.Collapsed; // This is so the control is initially invisible for the animation.
 
             InitializeComponent();
-
-            BitmapImage bitmap = new BitmapImage(new Uri(cover));
-            //bitmap.DownloadCompleted += (s, e) => { this.Visibility = Visibility.Visible; }; // maybe look into creating error thingy if it can't pull an image.
-            imageControl.ImageSource = bitmap;
 
             nameBlock.Text = name;
 
@@ -105,18 +108,62 @@ namespace Beat_Saber_Song_Downloader
             //check id with the beginning strings 
 
             // does a check whether or not you have the song installed.
+            if (mainWin.idList.Contains(this.id))
+                duplicateBorder.Visibility = Visibility.Visible;
 
-            foreach (String idFromList in ((MainWindow)Application.Current.MainWindow).idList)
+            BitmapImage bitmap = new BitmapImage(new Uri(cover));
+            imageControl.ImageSource = bitmap;
+            bitmap.DownloadCompleted += (s, e) =>
             {
-                if (this.id == idFromList)
+                ImageLoadedControlCount++;
+
+                //somehow only this if statement is true once when in the output its clearly telling me that its true multiple times, meaning it should be running a lot, but isn't
+                if (ImageLoadedControlCount == mainWin.songPanel.Children.Count) // if true, all images have loaded in.
                 {
-                    duplicateBorder.Visibility = Visibility.Visible;
+                    int startTimeMilli = 0, interval = 70;
 
-                    break;
+                    foreach (SongControl control in mainWin.songPanel.Children)
+                    {
+                        Storyboard story = new Storyboard();
+                        Storyboard.SetTarget(story, control);
+                        
+                        ObjectAnimationUsingKeyFrames objAnimation = new ObjectAnimationUsingKeyFrames();
+                        Storyboard.SetTargetProperty(objAnimation, new PropertyPath(VisibilityProperty));
+                        objAnimation.BeginTime = new TimeSpan(0, 0, 0, 0, startTimeMilli);
+
+                        DiscreteObjectKeyFrame keyFrame = new DiscreteObjectKeyFrame(Visibility.Visible, TimeSpan.FromSeconds(0.0));
+                        objAnimation.KeyFrames.Add(keyFrame);
+                        story.Children.Add(objAnimation);
+
+                        
+                        DoubleAnimation doubleAnimation = new DoubleAnimation(0.0, 1.0, TimeSpan.FromSeconds(0.5));
+                        Storyboard.SetTargetProperty(doubleAnimation, new PropertyPath(OpacityProperty));
+                        doubleAnimation.BeginTime = new TimeSpan(0, 0, 0, 0, startTimeMilli);
+                        story.Children.Add(doubleAnimation);
+                        
+                        story.Begin();
+
+                        startTimeMilli += interval;
+                    }
+
+
+                    mainWin.searchButton.IsEnabled = true;
+                    mainWin.nextButton.IsEnabled = true;
+                    mainWin.previousButton.IsEnabled = true;
                 }
-            }
-            
 
+            }; // maybe look into creating error thingy if it can't pull an image. Not sure what this is about honestly.
+
+            /**
+            // This code is mainly used for testing.
+            this.Visibility = Visibility.Visible; // Only used for testing.
+
+            mainWin.searchButton.IsEnabled = true;
+            mainWin.nextButton.IsEnabled = true;
+
+            if (int.Parse(mainWin.pageBox.Text) != 0)
+                mainWin.previousButton.IsEnabled = true;
+             */
         }
 
         
@@ -197,8 +244,8 @@ namespace Beat_Saber_Song_Downloader
             End_Media();
 
             // Add song ID to list
-            MainWindow window = (MainWindow)Application.Current.MainWindow;
-            window.idList.Add(id);
+            
+            mainWin.idList.Add(id);
         }
 
         public void FadeOut()

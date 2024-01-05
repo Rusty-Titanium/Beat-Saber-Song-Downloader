@@ -13,14 +13,21 @@
         <Path x:Key="DownloadSymbol" Fill="Black" Stretch="Uniform" Data="M12 3C12.5523 3 13 3.44772 13 4V12.5858L15.2929 10.2929C15.6834 9.90237 16.3166 9.90237 16.7071 10.2929C17.0976 10.6834 17.0976 11.3166 16.7071 11.7071L12.7071 15.7071C12.5196 15.8946 12.2652 16 12 16C11.7348 16 11.4804 15.8946 11.2929 15.7071L7.2929 11.7071C6.90238 11.3166 6.90238 10.6834 7.2929 10.2929C7.68342 9.90237 8.31659 9.90237 8.70711 10.2929L11 12.5858V4C11 3.44772 11.4477 3 12 3ZM4.00001 14C4.55229 14 5.00001 14.4477 5.00001 15C5.00001 15.9772 5.00485 16.3198 5.05765 16.5853C5.29437 17.7753 6.22466 18.7056 7.41474 18.9424C7.68018 18.9952 8.02276 19 9.00001 19H15C15.9772 19 16.3198 18.9952 16.5853 18.9424C17.7753 18.7056 18.7056 17.7753 18.9424 16.5853C18.9952 16.3198 19 15.9772 19 15C19 14.4477 19.4477 14 20 14C20.5523 14 21 14.4477 21 15C21 15.0392 21 15.0777 21 15.1157C21.0002 15.9334 21.0004 16.4906 20.9039 16.9755C20.5094 18.9589 18.9589 20.5094 16.9755 20.9039C16.4907 21.0004 15.9334 21.0002 15.1158 21C15.0778 21 15.0392 21 15 21H9.00001C8.96084 21 8.92225 21 8.88423 21C8.06664 21.0002 7.50935 21.0004 7.02456 20.9039C5.0411 20.5094 3.49061 18.9589 3.09608 16.9755C2.99965 16.4906 2.99978 15.9334 2.99999 15.1158C3 15.0777 3.00001 15.0392 3.00001 15C3.00001 14.4477 3.44772 14 4.00001 14Z"/>
 
 
+        <Storyboard x:Key="FadeInAnimation">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation BeginTime="0:0:0.0" Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.5"/>
+        </Storyboard>
+
         <Storyboard x:Key="FadeOutAnimation">
             <DoubleAnimation BeginTime="0:0:0.0" Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.5"/>
         </Storyboard>
 
 
-        <!-- Heavily edited togglebutton. Removed most hovering and whatnot functionality. please fix at earliest convienience (aka once the original togglebutton one is fixed). -->
-
+        <!-- Heavily edited togglebutton. -->
         <Style x:Key="playToggleButton" TargetType="{x:Type ToggleButton}">
+
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
             <Setter Property="Background" Value="{DynamicResource Secondary.Button.Background}"/>
             <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}"/>
@@ -43,10 +50,20 @@
                                 <Setter Property="Content" TargetName="contentPresenter" Value="{DynamicResource Pause}"/>
                                 <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Static.Background}"/>
                             </Trigger>
-
                             <Trigger Property="IsChecked" Value="False">
                                 <Setter Property="Content" TargetName="contentPresenter" Value="{DynamicResource Play}"/>
                                 <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Static.Background}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.MouseOver.Background}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Pressed.Background}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Disabled.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Disabled.Border}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{DynamicResource Button.Disabled.Foreground}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -54,22 +71,9 @@
             </Setter>
         </Style>
 
-
     </UserControl.Resources>
-    <UserControl.Triggers>
 
-        <EventTrigger RoutedEvent="Loaded">
-            <BeginStoryboard>
-                <Storyboard>
-                    <DoubleAnimation BeginTime="0:0:0.0" Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.5"/>
-                </Storyboard>
-            </BeginStoryboard>
-        </EventTrigger>
-
-    </UserControl.Triggers>
-    
-
-    <Border BorderBrush="Black" BorderThickness="0" Background="White" VerticalAlignment="Top" Padding="5" Margin="0 10 0 0" CornerRadius="8">
+    <Border x:Name="mainBorder" BorderBrush="Black" BorderThickness="0" Background="White" VerticalAlignment="Top" Padding="5" Margin="0 10 0 0" CornerRadius="8">
         <Grid>
             
             <Border BorderBrush="Black" BorderThickness="0" Width="156" Height="156" HorizontalAlignment="Left" CornerRadius="8" Margin="4 4 0 4">
@@ -148,7 +152,7 @@
                         <Path Fill="Red" Stretch="Uniform" Width="30" Height="30" Margin="6 0 0 0" Data="M20.901 10.566A1.001 1.001 0 0 0 20 10h-4V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v7H4a1.001 1.001 0 0 0-.781 1.625l8 10a1 1 0 0 0 1.562 0l8-10c.24-.301.286-.712.12-1.059z"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Label x:Name="publishedLabel" d:Content="2023-1-31"/>
+                        <Label x:Name="publishedLabel" d:Content="2023-12-31"/>
                         <Path Fill="Black" Stretch="Uniform" Width="30" Height="30" Margin="6 0 0 0" Data="M8 1C8.55229 1 9 1.44772 9 2V3.00228C9.29723 2.99999 9.61798 3 9.96449 3H14.0355C14.382 3 14.7028 2.99999 15 3.00228V2C15 1.44772 15.4477 1 16 1C16.5523 1 17 1.44772 17 2V3.12459C17.3192 3.17902 17.621 3.25947 17.9134 3.3806C19.1386 3.88807 20.1119 4.86144 20.6194 6.08658C20.8305 6.59628 20.9181 7.13456 20.9596 7.74331C21 8.33531 21 9.06272 21 9.96448V13.6035C21 14.7056 21 15.5944 20.9403 16.3138C20.8788 17.0547 20.7487 17.7049 20.4371 18.3049C19.9627 19.2181 19.2181 19.9627 18.3049 20.4371C17.7049 20.7487 17.0547 20.8788 16.3138 20.9403C15.5944 21 14.7056 21 13.6035 21H10.3965C9.29444 21 8.40557 21 7.68616 20.9403C6.94535 20.8788 6.29513 20.7487 5.69513 20.4371C4.78191 19.9627 4.03731 19.2181 3.56293 18.3049C3.25126 17.7049 3.12125 17.0547 3.05972 16.3138C2.99998 15.5944 2.99999 14.7056 3 13.6035V9.96449C2.99999 9.06273 2.99999 8.33531 3.04038 7.74331C3.08191 7.13456 3.16948 6.59628 3.3806 6.08658C3.88807 4.86144 4.86144 3.88807 6.08658 3.3806C6.37901 3.25947 6.68085 3.17902 7 3.12459V2C7 1.44772 7.44772 1 8 1ZM7 5.17476C6.94693 5.19142 6.89798 5.20929 6.85195 5.22836C6.11687 5.53284 5.53284 6.11687 5.22836 6.85195C5.135 7.07733 5.07033 7.37254 5.03574 7.87945C5.01452 8.19046 5.0059 8.55351 5.00239 9H18.9976C18.9941 8.55351 18.9855 8.19046 18.9643 7.87945C18.9297 7.37254 18.865 7.07733 18.7716 6.85195C18.4672 6.11687 17.8831 5.53284 17.1481 5.22836C17.102 5.20929 17.0531 5.19142 17 5.17476V6C17 6.55228 16.5523 7 16 7C15.4477 7 15 6.55228 15 6V5.00239C14.7059 5.00009 14.3755 5 14 5H10C9.62448 5 9.29413 5.00009 9 5.00239V6C9 6.55228 8.55229 7 8 7C7.44772 7 7 6.55228 7 6V5.17476ZM19 11H5V13.56C5 14.7158 5.0008 15.5214 5.05286 16.1483C5.10393 16.7632 5.19909 17.116 5.33776 17.3829C5.62239 17.9309 6.06915 18.3776 6.61708 18.6622C6.88403 18.8009 7.23678 18.8961 7.85168 18.9471C8.47856 18.9992 9.28423 19 10.44 19H13.56C14.7158 19 15.5214 18.9992 16.1483 18.9471C16.7632 18.8961 17.116 18.8009 17.3829 18.6622C17.9309 18.3776 18.3776 17.9309 18.6622 17.3829C18.8009 17.116 18.8961 16.7632 18.9471 16.1483C18.9992 15.5214 19 14.7158 19 13.56V11ZM13 16C13 15.4477 13.4477 15 14 15H16C16.5523 15 17 15.4477 17 16C17 16.5523 16.5523 17 16 17H14C13.4477 17 13 16.5523 13 16Z"/>
                     </StackPanel>
                 </StackPanel>
